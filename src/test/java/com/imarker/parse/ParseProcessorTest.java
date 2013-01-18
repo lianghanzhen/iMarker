@@ -2,7 +2,6 @@ package com.imarker.parse;
 
 import com.imarker.IMarkerTestRunner;
 import com.parse.ParseObject;
-import com.parse.ParseUser;
 import junit.framework.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -194,7 +193,6 @@ public class ParseProcessorTest {
         Assert.assertEquals(obj1, objectWithParseRelation.getRelationColumn());
         Assert.assertEquals(obj2, objectWithParseRelation.getRelationFetchColumn());
         Assert.assertEquals("commonColumnWithFetchIfNeed", objectWithParseRelation.getCommonColumnWithFetchIfNeed());
-        Assert.assertEquals("_User", ParseUser.getCurrentUser().getClassName());
     }
 
     /** [end] test {@link ParseProcessor#fromParseObject(Class, com.parse.ParseObject)} */

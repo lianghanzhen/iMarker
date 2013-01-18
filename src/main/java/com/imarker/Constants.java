@@ -11,4 +11,13 @@ public final class Constants {
 
     // [end] Parse.com service constants
 
+    // [start] Parse.com service reserve columns
+
+    public static final String PARSE_RESERVE_COLUMN_OBJECT_ID = "objectId";
+    public static final String PARSE_RESERVE_COLUMN_CREATED_AT = "createdAt";
+    public static final String PARSE_RESERVE_COLUMN_UPDATED_AT = "updatedAt";
+    public static final String PARSE_RESERVE_COLUMN_ACL = "ACL";
+
+    // [end] Parse.com service reserve columns
+
 }

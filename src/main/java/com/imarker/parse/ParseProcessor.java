@@ -8,15 +8,11 @@ import java.util.List;
 import android.text.TextUtils;
 
 import android.util.Log;
+import com.imarker.Constants;
 import com.parse.ParseObject;
 
 public final class ParseProcessor {
 
-    private static final String PARSE_RESERVE_COLUMN_OBJECT_ID = "objectId";
-    private static final String PARSE_RESERVE_COLUMN_CREATED_AT = "createdAt";
-    private static final String PARSE_RESERVE_COLUMN_UPDATED_AT = "updatedAt";
-    private static final String PARSE_RESERVE_COLUMN_ACL = "ACL";
-	
 	private static ParseProcessor instance;
 
     private ParseProcessor() {}
@@ -70,8 +66,8 @@ public final class ParseProcessor {
 
     private boolean isParseReserveColumn(Field field) {
         String columnName = getParseColumnName(field);
-        return PARSE_RESERVE_COLUMN_OBJECT_ID.equals(columnName) || PARSE_RESERVE_COLUMN_CREATED_AT.equals(columnName)
-               || PARSE_RESERVE_COLUMN_UPDATED_AT.equals(columnName) || PARSE_RESERVE_COLUMN_ACL.equals(columnName);
+        return Constants.PARSE_RESERVE_COLUMN_OBJECT_ID.equals(columnName) || Constants.PARSE_RESERVE_COLUMN_CREATED_AT.equals(columnName)
+               || Constants.PARSE_RESERVE_COLUMN_UPDATED_AT.equals(columnName) || Constants.PARSE_RESERVE_COLUMN_ACL.equals(columnName);
     }
 
     private boolean isRelationColumn(Field field) {

@@ -10,7 +10,6 @@ public class IMarkerTestRunner extends RobolectricTestRunner {
 
     public IMarkerTestRunner(Class<?> testClass) throws InitializationError {
         super(testClass, new RobolectricConfig(new File("AndroidManifest.xml"), new File("res")));
-        new IMarkerApplication();
     }
 
 }
