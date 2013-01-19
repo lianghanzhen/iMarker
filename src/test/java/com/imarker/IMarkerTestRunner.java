@@ -1,5 +1,6 @@
 package com.imarker;
 
+import android.app.Application;
 import com.xtremelabs.robolectric.RobolectricConfig;
 import com.xtremelabs.robolectric.RobolectricTestRunner;
 import org.junit.runners.model.InitializationError;

@@ -1,7 +1,10 @@
 package com.imarker.parse;
 
+import com.imarker.Constants;
 import com.imarker.IMarkerTestRunner;
+import com.parse.ParseException;
 import com.parse.ParseObject;
+import com.parse.ParseUser;
 import junit.framework.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -26,6 +29,8 @@ public class ParseProcessorTest {
     public void testToParseObjectWithoutParseClassAnnotation() throws ParseProcessException {
         ObjectWithoutParseClassAnnotation objectWithoutParseClassAnnotation = new ObjectWithoutParseClassAnnotation();
         parseProcessor.toParseObject(objectWithoutParseClassAnnotation);
+        ParseUser parseUser = new ParseUser();
+        Assert.assertNotNull(parseUser);
     }
 
     @Test
@@ -97,6 +102,23 @@ public class ParseProcessorTest {
         Assert.assertEquals(false, testParseObject.containsKey("relationColumn"));
         Assert.assertEquals(true, testParseObject.containsKey("relationFetchColumn"));
         Assert.assertEquals(true, testParseObject.containsKey("commonColumnWithFetchIfNeed"));
+    }
+
+    @Test
+    public void testToParseObjectWithUser() throws ParseProcessException {
+        User user = new User();
+        ParseObject parseObject = parseProcessor.toParseObject(user);
+        Assert.assertEquals(true, parseObject instanceof ParseUser);
+        ParseUser parseUser = (ParseUser) parseObject;
+        Assert.assertNull(parseUser.get(Constants.PARSE_RESERVE_COLUMN_OBJECT_ID));
+        Assert.assertNull(parseUser.get(Constants.PARSE_RESERVE_COLUMN_ACL));
+        Assert.assertNull(parseUser.get(Constants.PARSE_RESERVE_COLUMN_CREATED_AT));
+        Assert.assertNull(parseUser.get(Constants.PARSE_RESERVE_COLUMN_UPDATED_AT));
+        Assert.assertNull(parseUser.get(Constants.PARSE_USER_RESERVE_COLUMN_EMAIL_VERIFIED));
+        Assert.assertNull(parseUser.get(Constants.PARSE_USER_RESERVE_COLUMN_AUTH_DATA));
+        Assert.assertEquals(user.getUsername(), parseUser.getUsername());
+        Assert.assertEquals(user.getPassword(), parseUser.get(Constants.PARSE_USER_RESERVE_COLUMN_PASSWORD));
+        Assert.assertEquals(user.getEmail(), parseUser.getEmail());
     }
 
     /** [end] test {@link ParseProcessor#toParseObject(Object)} */
@@ -347,5 +369,57 @@ class ObjectWithParseRelation {
 
     String getCommonColumnWithFetchIfNeed() {
         return commonColumnWithFetchIfNeed;
+    }
+}
+
+@ParseClass(className = Constants.PARSE_RESERVE_CLASS_USER)
+class User {
+
+    private @ParseColumn String objectId = "objectId";
+    private @ParseColumn String username = "lianghanzhen";
+    private @ParseColumn String password = "lianghanzhen";
+    private @ParseColumn String authData = "authData";
+    private @ParseColumn String email = "handrenliang@qq.com";
+    private @ParseColumn boolean emailVerified = true;
+    private @ParseColumn Date createdAt = new Date();
+    private @ParseColumn Date updatedAt = new Date();
+    private @ParseColumn String ACL = "ACL";
+
+    User() {}
+
+    public String getACL() {
+        return ACL;
+    }
+
+    public String getAuthData() {
+        return authData;
+    }
+
+    public Date getCreatedAt() {
+        return createdAt;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public boolean isEmailVerified() {
+        return emailVerified;
+    }
+
+    public String getObjectId() {
+        return objectId;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public Date getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public String getUsername() {
+        return username;
     }
 }

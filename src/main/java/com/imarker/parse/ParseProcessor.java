@@ -10,6 +10,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import com.imarker.Constants;
 import com.parse.ParseObject;
+import com.parse.ParseUser;
 
 public final class ParseProcessor {
 
@@ -43,11 +44,18 @@ public final class ParseProcessor {
             if (!isParseClassAnnotationPresent(clazz))
                 throw new ParseProcessException(String.format("Cannot parse %s to ParseObject, you must mark it with annotation ParseClass.", clazz.getName()));
 
-			ParseObject parseObject = new ParseObject(getParseClassName(clazz));
+            // according to ClassName, initial different ParseObject
+            ParseObject parseObject;
+            String className = getParseClassName(clazz);
+            if (isParseUserClass(className)) {
+                parseObject = new ParseUser();
+            } else {
+                parseObject = new ParseObject(getParseClassName(clazz));
+            }
 			List<Field> fields = getParseColumns(clazz);
 			for (Field field : fields) {
 				field.setAccessible(true);
-                if (!isParseReserveColumn(field)) {
+                if ((isParseUserClass(className) && !isParseUserReserveColumn(field)) || !isParseReserveColumn(field)) {
                     String columnName = getParseColumnName(field);
                     if (isRelationColumnAndFetchIfNeed(field)) {
                         parseObject.put(columnName, toParseObject(field.get(originalObject)));
@@ -68,6 +76,15 @@ public final class ParseProcessor {
         String columnName = getParseColumnName(field);
         return Constants.PARSE_RESERVE_COLUMN_OBJECT_ID.equals(columnName) || Constants.PARSE_RESERVE_COLUMN_CREATED_AT.equals(columnName)
                || Constants.PARSE_RESERVE_COLUMN_UPDATED_AT.equals(columnName) || Constants.PARSE_RESERVE_COLUMN_ACL.equals(columnName);
+    }
+
+    private boolean isParseUserClass(String className) {
+        return Constants.PARSE_RESERVE_CLASS_USER.equals(className);
+    }
+
+    private boolean isParseUserReserveColumn(Field field) {
+        String columnName = getParseColumnName(field);
+        return isParseReserveColumn(field) || Constants.PARSE_USER_RESERVE_COLUMN_AUTH_DATA.equals(columnName) || Constants.PARSE_USER_RESERVE_COLUMN_EMAIL_VERIFIED.equals(columnName);
     }
 
     private boolean isRelationColumn(Field field) {

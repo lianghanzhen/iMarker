@@ -4,8 +4,9 @@ import android.app.Application;
 import com.parse.Parse;
 import com.parse.ParseACL;
 import com.parse.ParseUser;
+import roboguice.application.RoboApplication;
 
-public class IMarkerApplication extends Application {
+public class IMarkerApplication extends RoboApplication {
 
 	private static IMarkerApplication instance;
 	private boolean loggerEnable = true; // TODO set false when releasing
