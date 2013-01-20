@@ -1,10 +1,7 @@
 package com.imarker.parse;
 
-import com.imarker.Constants;
 import com.imarker.IMarkerTestRunner;
-import com.parse.ParseException;
 import com.parse.ParseObject;
-import com.parse.ParseUser;
 import junit.framework.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -29,8 +26,6 @@ public class ParseProcessorTest {
     public void testToParseObjectWithoutParseClassAnnotation() throws ParseProcessException {
         ObjectWithoutParseClassAnnotation objectWithoutParseClassAnnotation = new ObjectWithoutParseClassAnnotation();
         parseProcessor.toParseObject(objectWithoutParseClassAnnotation);
-        ParseUser parseUser = new ParseUser();
-        Assert.assertNotNull(parseUser);
     }
 
     @Test
@@ -92,33 +87,35 @@ public class ParseProcessorTest {
     @Test
     public void testToParseObjectWithParseRelation() throws ParseProcessException {
         ObjectWithParseClassAndParseColumnAnnotation obj1 = new ObjectWithParseClassAndParseColumnAnnotation("Test1");
-        ObjectWithParseClassAndParseColumnAnnotation obj2 = new ObjectWithParseClassAndParseColumnAnnotation("Test2");
         String commonColumnWithFetchIfNeed = "commonColumnWithFetchIfNeed";
-        ObjectWithParseRelation objectWithParseRelation = new ObjectWithParseRelation(obj1, obj2, commonColumnWithFetchIfNeed);
+        ObjectWithParseRelation objectWithParseRelation = new ObjectWithParseRelation(obj1, commonColumnWithFetchIfNeed);
         ParseObject parseObject = new ParseObject(ObjectWithParseRelation.class.getSimpleName());
         ParseObject testParseObject = parseProcessor.toParseObject(objectWithParseRelation);
         Assert.assertEquals(parseObject.getClassName(), testParseObject.getClassName());
         Assert.assertEquals(2, testParseObject.keySet().size());
-        Assert.assertEquals(false, testParseObject.containsKey("relationColumn"));
-        Assert.assertEquals(true, testParseObject.containsKey("relationFetchColumn"));
+        Assert.assertEquals(true, testParseObject.containsKey("relationColumn"));
         Assert.assertEquals(true, testParseObject.containsKey("commonColumnWithFetchIfNeed"));
     }
 
-    @Test
-    public void testToParseObjectWithUser() throws ParseProcessException {
+    @Test(expected = ParseProcessException.class)
+    public void testToParseObjectWithReserveClass() throws ParseProcessException {
         User user = new User();
-        ParseObject parseObject = parseProcessor.toParseObject(user);
-        Assert.assertEquals(true, parseObject instanceof ParseUser);
-        ParseUser parseUser = (ParseUser) parseObject;
-        Assert.assertNull(parseUser.get(Constants.PARSE_RESERVE_COLUMN_OBJECT_ID));
-        Assert.assertNull(parseUser.get(Constants.PARSE_RESERVE_COLUMN_ACL));
-        Assert.assertNull(parseUser.get(Constants.PARSE_RESERVE_COLUMN_CREATED_AT));
-        Assert.assertNull(parseUser.get(Constants.PARSE_RESERVE_COLUMN_UPDATED_AT));
-        Assert.assertNull(parseUser.get(Constants.PARSE_USER_RESERVE_COLUMN_EMAIL_VERIFIED));
-        Assert.assertNull(parseUser.get(Constants.PARSE_USER_RESERVE_COLUMN_AUTH_DATA));
-        Assert.assertEquals(user.getUsername(), parseUser.getUsername());
-        Assert.assertEquals(user.getPassword(), parseUser.get(Constants.PARSE_USER_RESERVE_COLUMN_PASSWORD));
-        Assert.assertEquals(user.getEmail(), parseUser.getEmail());
+        parseProcessor.toParseObject(user);
+    }
+
+    @Test
+    public void testToParseObjectWithParseObject() throws ParseProcessException {
+        ParseObject parseObject = ParseObject.create("ParseObject");
+        ObjectWithParseClassAndParseColumnAnnotation objectWithParseClassAndParseColumnAnnotation = new ObjectWithParseClassAndParseColumnAnnotation("column");
+        ObjectWithParseObject objectWithParseObject = new ObjectWithParseObject("column", parseObject, objectWithParseClassAndParseColumnAnnotation);
+        ParseObject testParseObject = parseProcessor.toParseObject(objectWithParseObject);
+        Assert.assertNotNull(testParseObject);
+        Assert.assertEquals(3, testParseObject.keySet().size());
+        Assert.assertEquals(true, testParseObject.containsKey("column"));
+        Assert.assertEquals(true, testParseObject.containsKey("relation"));
+        Assert.assertEquals(true, testParseObject.getParseObject("relation").getClassName().equals(ObjectWithParseClassAndParseColumnAnnotation.class.getSimpleName()));
+        Assert.assertEquals(true, testParseObject.containsKey("parseObject"));
+        Assert.assertEquals(true, testParseObject.getParseObject("parseObject").getClassName().equals("ParseObject"));
     }
 
     /** [end] test {@link ParseProcessor#toParseObject(Object)} */
@@ -166,7 +163,7 @@ public class ParseProcessorTest {
         ParseObject parseObject = new ParseObject(ObjectWithSpecifyParseClassAndParseColumnAnnotation.class.getSimpleName());
         parseObject.put("column", COLUMN_VALUE);
         parseObject.put("title", "title");
-        ObjectWithSpecifyParseClassAndParseColumnAnnotation objectWithSpecifyParseClassAndParseColumnAnnotation = parseProcessor.fromParseObject(ObjectWithSpecifyParseClassAndParseColumnAnnotation.class, parseObject);
+        parseProcessor.fromParseObject(ObjectWithSpecifyParseClassAndParseColumnAnnotation.class, parseObject);
     }
 
     @Test
@@ -200,26 +197,43 @@ public class ParseProcessorTest {
     public void testFromParseObjectWithParseRelation() throws ParseProcessException {
         ParseObject parseObject1 = new ParseObject(ObjectWithParseClassAndParseColumnAnnotation.class.getSimpleName());
         parseObject1.put("column", "column1");
-        ParseObject parseObject2 = new ParseObject(ObjectWithParseClassAndParseColumnAnnotation.class.getSimpleName());
-        parseObject2.put("column", "column2");
         ParseObject parseObject = new ParseObject(ObjectWithParseRelation.class.getSimpleName());
         parseObject.put("relationColumn", parseObject1);
-        parseObject.put("relationFetchColumn", parseObject2);
         parseObject.put("commonColumnWithFetchIfNeed", "commonColumnWithFetchIfNeed");
         ObjectWithParseClassAndParseColumnAnnotation obj1 = parseProcessor.fromParseObject(ObjectWithParseClassAndParseColumnAnnotation.class, parseObject1);
-        ObjectWithParseClassAndParseColumnAnnotation obj2 = parseProcessor.fromParseObject(ObjectWithParseClassAndParseColumnAnnotation.class, parseObject2);
         ObjectWithParseRelation objectWithParseRelation = parseProcessor.fromParseObject(ObjectWithParseRelation.class, parseObject);
         Assert.assertNotNull(obj1);
-        Assert.assertNotNull(obj2);
         Assert.assertNotNull(objectWithParseRelation);
         Assert.assertEquals(obj1, objectWithParseRelation.getRelationColumn());
-        Assert.assertEquals(obj2, objectWithParseRelation.getRelationFetchColumn());
         Assert.assertEquals("commonColumnWithFetchIfNeed", objectWithParseRelation.getCommonColumnWithFetchIfNeed());
+    }
+
+    @Test(expected = RuntimeException.class)
+    public void testFromParseObject() throws ParseProcessException {
+        ParseObject parseObject = ParseObject.create("_User");
+        parseProcessor.fromParseObject(User.class, parseObject);
+    }
+
+    @Test
+    public void testFromParseObjectWithParseObject() throws ParseProcessException {
+        ParseObject parseObject = new ParseObject(ObjectWithParseObject.class.getSimpleName());
+        parseObject.put("column", "column");
+        ParseObject columnParseObject = ParseObject.create("ParseObject");
+        parseObject.put("parseObject", columnParseObject);
+        ObjectWithParseClassAndParseColumnAnnotation objectWithParseClassAndParseColumnAnnotation = new ObjectWithParseClassAndParseColumnAnnotation("object");
+        ParseObject parseObject1 = parseProcessor.toParseObject(objectWithParseClassAndParseColumnAnnotation);
+        parseObject.put("relation", parseObject1);
+        ObjectWithParseObject objectWithParseObject = parseProcessor.fromParseObject(ObjectWithParseObject.class, parseObject);
+        Assert.assertNotNull(objectWithParseObject);
+        Assert.assertEquals("column", objectWithParseObject.getColumn());
+        Assert.assertEquals("ParseObject", objectWithParseObject.getParseObject().getClassName());
+        Assert.assertEquals("object", objectWithParseObject.getObjectWithParseClassAndParseColumnAnnotation().getColumn());
     }
 
     /** [end] test {@link ParseProcessor#fromParseObject(Class, com.parse.ParseObject)} */
 
 }
+
 
 class ObjectWithoutParseClassAnnotation {
     ObjectWithoutParseClassAnnotation() {}
@@ -346,16 +360,13 @@ class ObjectWithParseReverveColumnName {
 class ObjectWithParseRelation {
     @ParseColumn(columnType = ParseColumn.ColumnType.RELATION)
     private ObjectWithParseClassAndParseColumnAnnotation relationColumn;
-    @ParseColumn(columnType = ParseColumn.ColumnType.RELATION, fetchIfNeed = true)
-    private ObjectWithParseClassAndParseColumnAnnotation relationFetchColumn;
-    @ParseColumn(columnType = ParseColumn.ColumnType.COMMON, fetchIfNeed = true)
+    @ParseColumn(columnType = ParseColumn.ColumnType.COMMON)
     private String commonColumnWithFetchIfNeed;
 
     ObjectWithParseRelation() {}
 
-    ObjectWithParseRelation(ObjectWithParseClassAndParseColumnAnnotation relationColumn, ObjectWithParseClassAndParseColumnAnnotation relationFetchColumn, String commonColumnWithFetchIfNeed) {
+    ObjectWithParseRelation(ObjectWithParseClassAndParseColumnAnnotation relationColumn, String commonColumnWithFetchIfNeed) {
         this.relationColumn = relationColumn;
-        this.relationFetchColumn = relationFetchColumn;
         this.commonColumnWithFetchIfNeed = commonColumnWithFetchIfNeed;
     }
 
@@ -363,63 +374,41 @@ class ObjectWithParseRelation {
         return relationColumn;
     }
 
-    ObjectWithParseClassAndParseColumnAnnotation getRelationFetchColumn() {
-        return relationFetchColumn;
-    }
-
     String getCommonColumnWithFetchIfNeed() {
         return commonColumnWithFetchIfNeed;
     }
 }
 
-@ParseClass(className = Constants.PARSE_RESERVE_CLASS_USER)
-class User {
 
-    private @ParseColumn String objectId = "objectId";
-    private @ParseColumn String username = "lianghanzhen";
-    private @ParseColumn String password = "lianghanzhen";
-    private @ParseColumn String authData = "authData";
-    private @ParseColumn String email = "handrenliang@qq.com";
-    private @ParseColumn boolean emailVerified = true;
-    private @ParseColumn Date createdAt = new Date();
-    private @ParseColumn Date updatedAt = new Date();
-    private @ParseColumn String ACL = "ACL";
+@ParseClass(className = "_User")
+class User {}
 
-    User() {}
+@ParseClass
+class ObjectWithParseObject {
+    @ParseColumn
+    private String column;
+    @ParseColumn
+    private ParseObject parseObject;
+    @ParseColumn(columnName = "relation", columnType = ParseColumn.ColumnType.RELATION)
+    private ObjectWithParseClassAndParseColumnAnnotation objectWithParseClassAndParseColumnAnnotation;
 
-    public String getACL() {
-        return ACL;
+    ObjectWithParseObject() {}
+
+    ObjectWithParseObject(String column, ParseObject parseObject, ObjectWithParseClassAndParseColumnAnnotation objectWithParseClassAndParseColumnAnnotation) {
+        this.column = column;
+        this.parseObject = parseObject;
+        this.objectWithParseClassAndParseColumnAnnotation = objectWithParseClassAndParseColumnAnnotation;
     }
 
-    public String getAuthData() {
-        return authData;
+    public String getColumn() {
+        return column;
     }
 
-    public Date getCreatedAt() {
-        return createdAt;
+    public ParseObject getParseObject() {
+        return parseObject;
     }
 
-    public String getEmail() {
-        return email;
-    }
-
-    public boolean isEmailVerified() {
-        return emailVerified;
-    }
-
-    public String getObjectId() {
-        return objectId;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public Date getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public String getUsername() {
-        return username;
+    public ObjectWithParseClassAndParseColumnAnnotation getObjectWithParseClassAndParseColumnAnnotation() {
+        return objectWithParseClassAndParseColumnAnnotation;
     }
 }

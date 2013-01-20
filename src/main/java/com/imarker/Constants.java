@@ -27,6 +27,14 @@ public final class Constants {
     public static final String PARSE_USER_RESERVE_COLUMN_EMAIL_VERIFIED = "emailVerified";
     public static final String PARSE_USER_RESERVE_COLUMN_AUTH_DATA = "authData";
 
+    public static boolean isParseReserveClass(String className) {
+        return isParseUserClass(className);
+    }
+
+    public static boolean isParseUserClass(String className) {
+        return PARSE_RESERVE_CLASS_USER.equals(className);
+    }
+
     // [end] Parse.com service reserve columns
 
 }

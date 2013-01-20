@@ -2,11 +2,22 @@ package com.imarker.model;
 
 import com.imarker.IMarkerApplication;
 import com.imarker.R;
+import com.parse.ParseUser;
 
 /**
  * image marker
  */
-public class Marker {
+public class Marker extends ParseUser {
+
+    private Gender gender = Gender.MALE;
+
+    public Gender getGender() {
+        return gender;
+    }
+
+    public void setGender(Gender gender) {
+        this.gender = gender;
+    }
 
     public static enum Gender {
         MALE(0, IMarkerApplication.getInstance().getString(R.string.male)),
@@ -19,38 +30,6 @@ public class Marker {
             this.gender = gender;
             this.representation = representation;
         }
-    }
-
-    private String objectId;
-    private String name;
-    private Gender gender;
-
-    public Marker() {}
-
-    public Marker(String objectId, String name, Gender gender) {
-        this.objectId = objectId;
-        this.name = name;
-        this.gender = gender;
-    }
-
-    public String getId() {
-        return objectId;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public Gender getGender() {
-        return gender;
-    }
-
-    public void setGender(Gender gender) {
-        this.gender = gender;
     }
 
 }

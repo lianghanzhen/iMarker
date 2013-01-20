@@ -22,9 +22,9 @@ public class IMarkerApplication extends RoboApplication {
         // 启用匿名用户
         ParseUser.enableAutomaticUser();
         // 启用全局访问的权限
-        ParseACL defaultACL = new ParseACL();
-        defaultACL.setPublicReadAccess(true);
-        ParseACL.setDefaultACL(defaultACL, true);
+//        ParseACL defaultACL = new ParseACL();
+//        defaultACL.setPublicReadAccess(true);
+//        ParseACL.setDefaultACL(defaultACL, true);
 	}
 	
 	public boolean isLoggerEnable() {

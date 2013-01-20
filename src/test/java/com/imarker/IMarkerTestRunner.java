@@ -13,4 +13,10 @@ public class IMarkerTestRunner extends RobolectricTestRunner {
         super(testClass, new RobolectricConfig(new File("AndroidManifest.xml"), new File("res")));
     }
 
+    @Override
+    protected Application createApplication() {
+        Application application = new IMarkerApplication();
+        application.onCreate();
+        return application;
+    }
 }

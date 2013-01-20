@@ -2,15 +2,12 @@ package com.imarker.parse;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import android.text.TextUtils;
 
-import android.util.Log;
 import com.imarker.Constants;
 import com.parse.ParseObject;
-import com.parse.ParseUser;
 
 public final class ParseProcessor {
 
@@ -45,22 +42,18 @@ public final class ParseProcessor {
                 throw new ParseProcessException(String.format("Cannot parse %s to ParseObject, you must mark it with annotation ParseClass.", clazz.getName()));
 
             // according to ClassName, initial different ParseObject
-            ParseObject parseObject;
             String className = getParseClassName(clazz);
-            if (isParseUserClass(className)) {
-                parseObject = new ParseUser();
-            } else {
-                parseObject = new ParseObject(getParseClassName(clazz));
-            }
+            ParseObject parseObject = ParseObject.create(className);
 			List<Field> fields = getParseColumns(clazz);
 			for (Field field : fields) {
 				field.setAccessible(true);
-                if ((isParseUserClass(className) && !isParseUserReserveColumn(field)) || !isParseReserveColumn(field)) {
+                if (!isParseReserveColumn(field)) {
                     String columnName = getParseColumnName(field);
-                    if (isRelationColumnAndFetchIfNeed(field)) {
+                    if (isRelationColumn(field)) {
                         parseObject.put(columnName, toParseObject(field.get(originalObject)));
-                    } else if (!isRelationColumn(field)) {
-                        parseObject.put(columnName, field.get(originalObject));
+                    } else {
+                        if (field.get(originalObject) != null)
+                            parseObject.put(columnName, field.get(originalObject));
                     }
                 }
 			}
@@ -78,21 +71,8 @@ public final class ParseProcessor {
                || Constants.PARSE_RESERVE_COLUMN_UPDATED_AT.equals(columnName) || Constants.PARSE_RESERVE_COLUMN_ACL.equals(columnName);
     }
 
-    private boolean isParseUserClass(String className) {
-        return Constants.PARSE_RESERVE_CLASS_USER.equals(className);
-    }
-
-    private boolean isParseUserReserveColumn(Field field) {
-        String columnName = getParseColumnName(field);
-        return isParseReserveColumn(field) || Constants.PARSE_USER_RESERVE_COLUMN_AUTH_DATA.equals(columnName) || Constants.PARSE_USER_RESERVE_COLUMN_EMAIL_VERIFIED.equals(columnName);
-    }
-
     private boolean isRelationColumn(Field field) {
         return field.isAnnotationPresent(ParseColumn.class) && field.getAnnotation(ParseColumn.class).columnType() == ParseColumn.ColumnType.RELATION;
-    }
-
-    private boolean isRelationColumnAndFetchIfNeed(Field field) {
-        return isRelationColumn(field) && field.isAnnotationPresent(ParseColumn.class) && field.getAnnotation(ParseColumn.class).fetchIfNeed();
     }
 	
 	/**
@@ -105,6 +85,8 @@ public final class ParseProcessor {
 	public <T> T fromParseObject(Class<T> clazz, ParseObject parseObject) throws ParseProcessException {
         if (!isParseClassAnnotationPresent(clazz) || !parseObject.getClassName().equals(getParseClassName(clazz)))
             throw new ParseProcessException(String.format("Cannot create %s object from ParseObject, you must mark it with annotation ParseClass.", clazz.getName()));
+        if (Constants.isParseReserveClass(parseObject.getClassName()))
+            throw new ParseProcessException("Cannot parse Parse.com reserve class " + parseObject.getClassName() + " to common object.");
 
 		try {
 			T result = clazz.newInstance();
@@ -128,8 +110,11 @@ public final class ParseProcessor {
 	 * @param clazz class
 	 * @return class name
 	 */
-	private String getParseClassName(Class<?> clazz) {
-	    return !TextUtils.isEmpty(clazz.getAnnotation(ParseClass.class).className()) ? clazz.getAnnotation(ParseClass.class).className() : clazz.getSimpleName();
+	private String getParseClassName(Class<?> clazz) throws ParseProcessException {
+	    String className = !TextUtils.isEmpty(clazz.getAnnotation(ParseClass.class).className()) ? clazz.getAnnotation(ParseClass.class).className() : clazz.getSimpleName();
+        if (Constants.isParseReserveClass(className))
+            throw new ParseProcessException(className + " is Parse.com reserve class, remark it.");
+        return className;
 	}
 
 	/*

@@ -14,8 +14,7 @@ public class Image {
     private @ParseColumn int width;
     private @ParseColumn int height;
     private @ParseColumn String markerName;
-    @ParseColumn(columnType = ParseColumn.ColumnType.RELATION, fetchIfNeed = true)
-    private Marker marker;
+    private @ParseColumn Marker marker;
 
     public Image() {}
 
