@@ -33,7 +33,8 @@ public class ImageTest {
         image.setMarker(marker);
         ParseObject parseObject = parseProcessor.toParseObject(image);
         Assert.assertNotNull(parseObject);
-        Assert.assertEquals(8, parseObject.keySet().size());
+        Assert.assertFalse(parseObject.containsKey("objectId"));
+        Assert.assertEquals(9, parseObject.keySet().size());
         Assert.assertEquals("ContentType", parseObject.getString("contentType"));
         Assert.assertEquals(10, parseObject.getInt("height"));
         Assert.assertEquals(10, parseObject.getInt("width"));

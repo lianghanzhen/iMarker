@@ -47,7 +47,7 @@ public class ParseProcessorTest {
         ParseObject parseObject = new ParseObject(ObjectWithParseClassButWithoutParseColumnAnnotation.class.getSimpleName());
         ParseObject testParseObject = parseProcessor.toParseObject(objectWithParseClassButWithoutParseColumnAnnotation);
         Assert.assertEquals(parseObject.getClassName(), testParseObject.getClassName());
-        Assert.assertEquals(0, testParseObject.keySet().size());
+        Assert.assertEquals(1, testParseObject.keySet().size());
     }
 
     @Test
@@ -56,7 +56,7 @@ public class ParseProcessorTest {
         ParseObject parseObject = new ParseObject(ObjectWithParseClassAndParseColumnAnnotation.class.getSimpleName());
         ParseObject testParseObject = parseProcessor.toParseObject(objectWithParseClassAndParseColumnAnnotation);
         Assert.assertEquals(parseObject.getClassName(), testParseObject.getClassName());
-        Assert.assertEquals(1, testParseObject.keySet().size());
+        Assert.assertEquals(2, testParseObject.keySet().size());
         Assert.assertEquals(true, testParseObject.containsKey("column"));
     }
 
@@ -66,7 +66,7 @@ public class ParseProcessorTest {
         ParseObject parseObject = new ParseObject("TestParseClass");
         ParseObject testParseObject = parseProcessor.toParseObject(objectWithSpecifyParseClassAndParseColumnAnnotation);
         Assert.assertEquals(parseObject.getClassName(), testParseObject.getClassName());
-        Assert.assertEquals(1, testParseObject.keySet().size());
+        Assert.assertEquals(2, testParseObject.keySet().size());
         Assert.assertEquals(true, testParseObject.containsKey("testParseColumn"));
         Assert.assertEquals(false, testParseObject.containsKey("column"));
         Assert.assertEquals(false, testParseObject.containsKey("title"));
@@ -78,7 +78,7 @@ public class ParseProcessorTest {
         ParseObject parseObject = new ParseObject(ObjectWithParseReverveColumnName.class.getSimpleName());
         ParseObject testParseObject = parseProcessor.toParseObject(objectWithParseReverveColumnName);
         Assert.assertEquals(parseObject.getClassName(), testParseObject.getClassName());
-        Assert.assertEquals(0, testParseObject.keySet().size());
+        Assert.assertEquals(1, testParseObject.keySet().size());
         Assert.assertEquals(false, testParseObject.containsKey("objectId"));
         Assert.assertEquals(false, testParseObject.containsKey("createdAt"));
         Assert.assertEquals(false, testParseObject.containsKey("updatedAt"));
@@ -92,7 +92,7 @@ public class ParseProcessorTest {
         ParseObject parseObject = new ParseObject(ObjectWithParseRelation.class.getSimpleName());
         ParseObject testParseObject = parseProcessor.toParseObject(objectWithParseRelation);
         Assert.assertEquals(parseObject.getClassName(), testParseObject.getClassName());
-        Assert.assertEquals(2, testParseObject.keySet().size());
+        Assert.assertEquals(3, testParseObject.keySet().size());
         Assert.assertEquals(true, testParseObject.containsKey("relationColumn"));
         Assert.assertEquals(true, testParseObject.containsKey("commonColumnWithFetchIfNeed"));
     }
@@ -110,7 +110,7 @@ public class ParseProcessorTest {
         ObjectWithParseObject objectWithParseObject = new ObjectWithParseObject("column", parseObject, objectWithParseClassAndParseColumnAnnotation);
         ParseObject testParseObject = parseProcessor.toParseObject(objectWithParseObject);
         Assert.assertNotNull(testParseObject);
-        Assert.assertEquals(3, testParseObject.keySet().size());
+        Assert.assertEquals(4, testParseObject.keySet().size());
         Assert.assertEquals(true, testParseObject.containsKey("column"));
         Assert.assertEquals(true, testParseObject.containsKey("relation"));
         Assert.assertEquals(true, testParseObject.getParseObject("relation").getClassName().equals(ObjectWithParseClassAndParseColumnAnnotation.class.getSimpleName()));

@@ -6,8 +6,8 @@ public final class Constants {
 
     // [start] Parse.com service constants
 
-    public static final String PARSE_APP_ID = "N5eirbQSi00s0yzLtadnJdiQY20PirOv0L4jzgtD";
-    public static final String PARSE_CLIENT_KEY = "zaw8wYFcfOU0DLiKth7duUF4xgOOBNziwWuR5fE4";
+    public static final String PARSE_APP_ID = "LbRq23ik7OLlQqQMNROMkOWhZWXB434JnskFEOBD";
+    public static final String PARSE_CLIENT_KEY = "WzvKP1lcmZhF6ORRWgRqfDDe8F1efNSazkIWcEJH";
 
     // [end] Parse.com service constants
 
