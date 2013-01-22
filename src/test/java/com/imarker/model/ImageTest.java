@@ -29,11 +29,11 @@ public class ImageTest {
         image.setSize(100);
         image.setTitle("title");
         image.setUrl("http://imarker.me");
-//        Marker marker = new Marker();
-//        image.setMarker(marker);
+        Marker marker = new Marker();
+        image.setMarker(marker);
         ParseObject parseObject = parseProcessor.toParseObject(image);
         Assert.assertNotNull(parseObject);
-        Assert.assertEquals(7, parseObject.keySet().size());
+        Assert.assertEquals(8, parseObject.keySet().size());
         Assert.assertEquals("ContentType", parseObject.getString("contentType"));
         Assert.assertEquals(10, parseObject.getInt("height"));
         Assert.assertEquals(10, parseObject.getInt("width"));
@@ -41,7 +41,7 @@ public class ImageTest {
         Assert.assertEquals("title", parseObject.getString("title"));
         Assert.assertEquals("http://imarker.me", parseObject.getString("url"));
         Assert.assertEquals("lianghanzhen", parseObject.getString("markerName"));
-//        Assert.assertEquals("_User", parseObject.getParseObject("marker").getClassName());
+        Assert.assertEquals("_User", parseObject.getParseObject("marker").getClassName());
     }
 
     @Test
@@ -54,6 +54,7 @@ public class ImageTest {
         parseObject.put("title", "title");
         parseObject.put("url", "http://imarker.me");
         parseObject.put("markerName", "lianghanzhen");
+        parseObject.put("marker", new Marker());
         Image image = parseProcessor.fromParseObject(Image.class, parseObject);
         Assert.assertNotNull(image);
         Assert.assertEquals("ContentType", image.getContentType());
@@ -63,6 +64,6 @@ public class ImageTest {
         Assert.assertEquals("title", image.getTitle());
         Assert.assertEquals("http://imarker.me", image.getUrl());
         Assert.assertEquals("lianghanzhen", image.getMarkerName());
-        Assert.assertNull(image.getMarker());
+        Assert.assertNotNull(image.getMarker());
     }
 }

@@ -208,7 +208,7 @@ public class ParseProcessorTest {
         Assert.assertEquals("commonColumnWithFetchIfNeed", objectWithParseRelation.getCommonColumnWithFetchIfNeed());
     }
 
-    @Test(expected = RuntimeException.class)
+    @Test(expected = ParseProcessException.class)
     public void testFromParseObject() throws ParseProcessException {
         ParseObject parseObject = ParseObject.create("_User");
         parseProcessor.fromParseObject(User.class, parseObject);
