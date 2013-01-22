@@ -14,11 +14,11 @@ public class Image {
     private @ParseColumn int width;
     private @ParseColumn int height;
     private @ParseColumn String markerName;
-    private @ParseColumn Marker marker;
+    private @ParseColumn(columnType = ParseColumn.ColumnType.RELATION, fetchIfNeed = true) Marker marker;
 
     public Image() {}
 
-    public Image(String title, String url, String contentType, long size, int width, int height, String markerName) {
+    public Image(String title, String url, String contentType, long size, int width, int height, String markerName, Marker marker) {
         this.title = title;
         this.url = url;
         this.contentType = contentType;
@@ -26,6 +26,7 @@ public class Image {
         this.width = width;
         this.height = height;
         this.markerName = markerName;
+        this.marker = marker;
     }
 
     public String getContentType() {

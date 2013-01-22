@@ -1,6 +1,7 @@
 package com.imarker;
 
 import android.app.Application;
+import com.imarker.parse.ParseProcessor;
 import com.parse.Parse;
 import com.parse.ParseACL;
 import com.parse.ParseUser;

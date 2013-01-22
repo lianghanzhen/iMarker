@@ -7,9 +7,12 @@ import java.util.List;
 import android.text.TextUtils;
 
 import com.imarker.Constants;
+import com.parse.ParseException;
 import com.parse.ParseObject;
 
 public final class ParseProcessor {
+
+    private static final String PARSE_RESERVE_CLASS_PREFIX = "_";
 
 	private static ParseProcessor instance;
 
@@ -36,43 +39,53 @@ public final class ParseProcessor {
 	 * @throws com.imarker.parse.ParseProcessException exception
 	 */
 	public <T> ParseObject toParseObject(T originalObject) throws ParseProcessException {
+        if (originalObject == null)
+            return null;
+
 		try {
 			Class<?> clazz = originalObject.getClass();
-            if (!isParseClassAnnotationPresent(clazz))
-                throw new ParseProcessException(String.format("Cannot parse %s to ParseObject, you must mark it with annotation ParseClass.", clazz.getName()));
+            if (!(isParseClassAnnotationPresent(clazz) || isParseUserAnnotationPresent(clazz)))
+                throw new ParseProcessException(String.format("Cannot parse %s to ParseObject, you must mark it with annotation ParseClass or ParseUser.", clazz.getName()));
+
 
             // according to ClassName, initial different ParseObject
             String className = getParseClassName(clazz);
-            ParseObject parseObject = ParseObject.create(className);
+            ParseObject parseObject = isParseUserAnnotationPresent(clazz) ? new com.parse.ParseUser() : ParseObject.create(className);
 			List<Field> fields = getParseColumns(clazz);
 			for (Field field : fields) {
 				field.setAccessible(true);
                 if (!isParseReserveColumn(field)) {
                     String columnName = getParseColumnName(field);
-                    if (isRelationColumn(field)) {
-                        parseObject.put(columnName, toParseObject(field.get(originalObject)));
-                    } else {
-                        if (field.get(originalObject) != null)
+                    Object fieldValue = field.get(originalObject);
+                    if (fieldValue != null) {
+                        if (isRelationColumn(field)) {
+                            parseObject.put(columnName, toParseObject(field.get(originalObject)));
+                        } else {
                             parseObject.put(columnName, field.get(originalObject));
+                        }
                     }
                 }
 			}
-			return parseObject;	
+			return parseObject;
 		} catch (IllegalAccessException e) {
 			throw new ParseProcessException(e);
 		} catch (IllegalArgumentException e) {
 			throw new ParseProcessException(e);
-		}	
+		}
 	}
 
     private boolean isParseReserveColumn(Field field) {
         String columnName = getParseColumnName(field);
-        return Constants.PARSE_RESERVE_COLUMN_OBJECT_ID.equals(columnName) || Constants.PARSE_RESERVE_COLUMN_CREATED_AT.equals(columnName)
-               || Constants.PARSE_RESERVE_COLUMN_UPDATED_AT.equals(columnName) || Constants.PARSE_RESERVE_COLUMN_ACL.equals(columnName);
+        return Constants.PARSE_RESERVE_COLUMN_ACL.equals(columnName) || Constants.PARSE_RESERVE_COLUMN_OBJECT_ID.equals(columnName)
+               || Constants.PARSE_RESERVE_COLUMN_CREATED_AT.equals(columnName)  || Constants.PARSE_RESERVE_COLUMN_UPDATED_AT.equals(columnName);
     }
 
     private boolean isRelationColumn(Field field) {
         return field.isAnnotationPresent(ParseColumn.class) && field.getAnnotation(ParseColumn.class).columnType() == ParseColumn.ColumnType.RELATION;
+    }
+
+    private boolean isRelationColumnAndFetchIfNeed(Field field) {
+        return isRelationColumn(field) && field.isAnnotationPresent(ParseColumn.class) && field.getAnnotation(ParseColumn.class).fetchIfNeed();
     }
 	
 	/**
@@ -83,10 +96,13 @@ public final class ParseProcessor {
 	 * @throws com.imarker.parse.ParseProcessException exception
 	 */
 	public <T> T fromParseObject(Class<T> clazz, ParseObject parseObject) throws ParseProcessException {
-        if (!isParseClassAnnotationPresent(clazz) || !parseObject.getClassName().equals(getParseClassName(clazz)))
-            throw new ParseProcessException(String.format("Cannot create %s object from ParseObject, you must mark it with annotation ParseClass.", clazz.getName()));
-        if (Constants.isParseReserveClass(parseObject.getClassName()))
-            throw new ParseProcessException("Cannot parse Parse.com reserve class " + parseObject.getClassName() + " to common object.");
+        if (parseObject == null)
+            return null;
+
+        if (!(isParseClassAnnotationPresent(clazz) || isParseUserAnnotationPresent(clazz)))
+            throw new ParseProcessException(String.format("Cannot create %s object from ParseObject, you must mark it with annotation ParseClass or ParseUser.", clazz.getName()));
+        if (isParseClassAnnotationPresent(clazz) && !parseObject.getClassName().equals(getParseClassName(clazz)))
+            throw new ParseProcessException(String.format("ParseObject's class name does not equal to clazz name, %s != %s.", parseObject.getClassName(), clazz.getName()));
 
 		try {
 			T result = clazz.newInstance();
@@ -94,15 +110,22 @@ public final class ParseProcessor {
 			for (Field field : fields) {
 				field.setAccessible(true);
 				String columnName = getParseColumnName(field);
-				if (parseObject.containsKey(columnName))
-					field.set(result, isRelationColumn(field) ? fromParseObject(field.getType(), parseObject.getParseObject(columnName)) : parseObject.get(columnName));
+				if (parseObject.containsKey(columnName)) {
+                    if (isRelationColumnAndFetchIfNeed(field)) {
+                        field.set(result, fromParseObject(field.getType(), parseObject.getParseObject(columnName).fetchIfNeeded()));
+                    } else if (!isRelationColumn(field)) {
+                        field.set(result, parseObject.get(columnName));
+                    }
+                }
 			}
 			return result;
 		} catch (IllegalAccessException e) {
 			throw new ParseProcessException(e);
 		} catch (InstantiationException e) {
 			throw new ParseProcessException(e);
-		}
+		} catch (ParseException e) {
+            throw new ParseProcessException(e);
+        }
 	}
 	
 	/*
@@ -111,9 +134,12 @@ public final class ParseProcessor {
 	 * @return class name
 	 */
 	private String getParseClassName(Class<?> clazz) throws ParseProcessException {
+        if (isParseUserAnnotationPresent(clazz))
+            return Constants.PARSE_RESERVE_CLASS_USER;
+
 	    String className = !TextUtils.isEmpty(clazz.getAnnotation(ParseClass.class).className()) ? clazz.getAnnotation(ParseClass.class).className() : clazz.getSimpleName();
-        if (Constants.isParseReserveClass(className))
-            throw new ParseProcessException(className + " is Parse.com reserve class, remark it.");
+        if (className.startsWith(PARSE_RESERVE_CLASS_PREFIX))
+            throw new ParseProcessException(String.format("Parse class name of [%s] cannot start with %s", clazz.getName(), PARSE_RESERVE_CLASS_PREFIX));
         return className;
 	}
 
@@ -125,6 +151,10 @@ public final class ParseProcessor {
 	private boolean isParseClassAnnotationPresent(Class<?> clazz) {
 		return clazz.isAnnotationPresent(ParseClass.class);
 	}
+
+    private boolean isParseUserAnnotationPresent(Class<?> clazz) {
+        return clazz.isAnnotationPresent(ParseUser.class);
+    }
 
 	/*
 	 * get {@link ParseColumn}, add the fields that is marked as {@link ParseColumn}

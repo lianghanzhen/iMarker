@@ -30,6 +30,12 @@ public @interface ParseColumn {
     ColumnType columnType() default ColumnType.COMMON;
 
     /**
+     * whether fetch the related ParseObject, only work with ColumnType.RELATION
+     * @return
+     */
+    boolean fetchIfNeed() default false;
+
+    /**
      * column type that represent how to deal with the column
      */
     public static enum ColumnType {
