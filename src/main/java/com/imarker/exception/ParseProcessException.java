@@ -1,8 +1,8 @@
-package com.imarker.parse;
+package com.imarker.exception;
 
 import com.imarker.utils.L;
 
-public class ParseProcessException extends Exception {
+public class ParseProcessException extends IMarkerException {
 
 	private static final long serialVersionUID = -1407158001403173319L;
 	

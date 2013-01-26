@@ -7,8 +7,10 @@ import java.util.List;
 import android.text.TextUtils;
 
 import com.imarker.Constants;
+import com.imarker.exception.ParseProcessException;
 import com.parse.ParseException;
 import com.parse.ParseObject;
+import com.parse.ParseQuery;
 
 public final class ParseProcessor {
 
@@ -21,8 +23,9 @@ public final class ParseProcessor {
 	public static ParseProcessor getInstance() {
 		if (instance == null) {
 			synchronized (ParseProcessor.class) {
-				if (instance == null)
+				if (instance == null) {
 					instance = new ParseProcessor();
+                }
 			}
 		}
 		return instance;
@@ -36,17 +39,18 @@ public final class ParseProcessor {
 	 * 4. if common object class do not have annotation {@see ParseClass}, then only Fields that have annotation {@see ParseColumn} will be stored to Parse.com
 	 * @param originalObject common object
 	 * @return ParseObject
-	 * @throws com.imarker.parse.ParseProcessException exception
+	 * @throws com.imarker.exception.ParseProcessException exception
 	 */
 	public <T> ParseObject toParseObject(T originalObject) throws ParseProcessException {
-        if (originalObject == null)
+        if (originalObject == null) {
             return null;
+        }
 
 		try {
 			Class<?> clazz = originalObject.getClass();
-            if (!(isParseClassAnnotationPresent(clazz) || isParseUserAnnotationPresent(clazz)))
+            if (!(isParseClassAnnotationPresent(clazz) || isParseUserAnnotationPresent(clazz))) {
                 throw new ParseProcessException(String.format("Cannot parse %s to ParseObject, you must mark it with annotation ParseClass or ParseUser.", clazz.getName()));
-
+            }
 
             // according to ClassName, initial different ParseObject
             String className = getParseClassName(clazz);
@@ -93,16 +97,19 @@ public final class ParseProcessor {
 	 * @param clazz that want to be constructed
 	 * @param parseObject ParseObject
 	 * @return new object
-	 * @throws com.imarker.parse.ParseProcessException exception
+	 * @throws com.imarker.exception.ParseProcessException exception
 	 */
 	public <T> T fromParseObject(Class<T> clazz, ParseObject parseObject) throws ParseProcessException {
-        if (parseObject == null)
+        if (parseObject == null) {
             return null;
+        }
 
-        if (!(isParseClassAnnotationPresent(clazz) || isParseUserAnnotationPresent(clazz)))
+        if (!(isParseClassAnnotationPresent(clazz) || isParseUserAnnotationPresent(clazz))) {
             throw new ParseProcessException(String.format("Cannot create %s object from ParseObject, you must mark it with annotation ParseClass or ParseUser.", clazz.getName()));
-        if (isParseClassAnnotationPresent(clazz) && !parseObject.getClassName().equals(getParseClassName(clazz)))
+        }
+        if (isParseClassAnnotationPresent(clazz) && !parseObject.getClassName().equals(getParseClassName(clazz))) {
             throw new ParseProcessException(String.format("ParseObject's class name does not equal to clazz name, %s != %s.", parseObject.getClassName(), clazz.getName()));
+        }
 
 		try {
 			T result = clazz.newInstance();
@@ -127,6 +134,10 @@ public final class ParseProcessor {
             throw new ParseProcessException(e);
         }
 	}
+
+    public ParseQuery createParseQuery(Class<?> clazz) throws ParseProcessException {
+        return new ParseQuery(getParseClassName(clazz));
+    }
 	
 	/*
 	 * get {@link ParseClass} class name
@@ -134,12 +145,14 @@ public final class ParseProcessor {
 	 * @return class name
 	 */
 	private String getParseClassName(Class<?> clazz) throws ParseProcessException {
-        if (isParseUserAnnotationPresent(clazz))
+        if (isParseUserAnnotationPresent(clazz)) {
             return Constants.PARSE_RESERVE_CLASS_USER;
+        }
 
 	    String className = !TextUtils.isEmpty(clazz.getAnnotation(ParseClass.class).className()) ? clazz.getAnnotation(ParseClass.class).className() : clazz.getSimpleName();
-        if (className.startsWith(PARSE_RESERVE_CLASS_PREFIX))
+        if (className.startsWith(PARSE_RESERVE_CLASS_PREFIX)) {
             throw new ParseProcessException(String.format("Parse class name of [%s] cannot start with %s", clazz.getName(), PARSE_RESERVE_CLASS_PREFIX));
+        }
         return className;
 	}
 
@@ -165,8 +178,9 @@ public final class ParseProcessor {
 		List<Field> fieldList = new ArrayList<Field>();
 		Field[] fields = clazz.getDeclaredFields();
         for (Field field : fields) {
-            if (field.isAnnotationPresent(ParseColumn.class))
+            if (field.isAnnotationPresent(ParseColumn.class)) {
                 fieldList.add(field);
+            }
         }
         return fieldList;
 	}

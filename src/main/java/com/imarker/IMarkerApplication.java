@@ -29,7 +29,7 @@ public class IMarkerApplication extends RoboApplication {
 	}
 	
 	public boolean isLoggerEnable() {
-		return loggerEnable;
+		return this.loggerEnable;
 	}
 
 	public static IMarkerApplication getInstance() {

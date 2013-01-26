@@ -1,6 +1,7 @@
 package com.imarker.parse;
 
 import com.imarker.IMarkerTestRunner;
+import com.imarker.exception.ParseProcessException;
 import com.imarker.model.Image;
 import com.imarker.model.Marker;
 import com.parse.ParseObject;
@@ -8,8 +9,6 @@ import static junit.framework.Assert.*;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import java.util.Date;
 
 @RunWith(IMarkerTestRunner.class)
 public class ParseProcessorTest {
@@ -142,7 +141,14 @@ public class ParseProcessorTest {
 
     /** [end] test {@link ParseProcessor#fromParseObject(Class, com.parse.ParseObject)} */
 
+    /** [start] test {@link ParseProcessor#createParseQuery(Class)} */
 
+    @Test
+    public void testCreateParseQueryWithImage() throws ParseProcessException {
+        assertEquals(parseProcessor.toParseObject(new Image()).getClassName(), parseProcessor.createParseQuery(Image.class).getClassName());
+    }
+
+    /** [end] test {@link ParseProcessor#createParseQuery(Class)} */
 
     // [start] helper class
 
