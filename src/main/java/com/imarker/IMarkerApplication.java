@@ -1,7 +1,6 @@
 package com.imarker;
 
-import android.app.Application;
-import com.imarker.parse.ParseProcessor;
+import com.imarker.constant.ParseConstants;
 import com.parse.Parse;
 import com.parse.ParseACL;
 import com.parse.ParseUser;
@@ -9,17 +8,16 @@ import roboguice.application.RoboApplication;
 
 public class IMarkerApplication extends RoboApplication {
 
-	private static IMarkerApplication instance;
-	private boolean loggerEnable = true; // TODO set false when releasing
+	private static IMarkerApplication mInstance;
 	
 	@Override
 	public void onCreate() {
 		super.onCreate();
 		
-		instance = this;
+		mInstance = this;
 
         // 初始化Parse服务
-        Parse.initialize(this, Constants.PARSE_APP_ID, Constants.PARSE_CLIENT_KEY);
+        Parse.initialize(this, ParseConstants.PARSE_APP_ID, ParseConstants.PARSE_CLIENT_KEY);
         // 启用匿名用户
         ParseUser.enableAutomaticUser();
         // 启用全局访问的权限
@@ -27,13 +25,9 @@ public class IMarkerApplication extends RoboApplication {
         defaultACL.setPublicReadAccess(true);
         ParseACL.setDefaultACL(defaultACL, true);
 	}
-	
-	public boolean isLoggerEnable() {
-		return this.loggerEnable;
-	}
 
 	public static IMarkerApplication getInstance() {
-		return instance;
+		return mInstance;
 	}
 	
 }

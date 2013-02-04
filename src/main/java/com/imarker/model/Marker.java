@@ -13,60 +13,60 @@ import java.util.Date;
 @ParseUser
 public class Marker {
 
-    private @ParseColumn String objectId;
-    private @ParseColumn String username;
-    private @ParseColumn String email;
-    private @ParseColumn boolean emailVerified;
-    private @ParseColumn Date createdAt;
-    private @ParseColumn int gender = 0;
+    private @ParseColumn(columnName = "objectId") String mObjectId;
+    private @ParseColumn(columnName = "username") String mUsername;
+    private @ParseColumn(columnName = "email") String mEmail;
+    private @ParseColumn(columnName = "emailVerified") boolean mEmailVerified;
+    private @ParseColumn(columnName = "createdAt") Date mCreatedAt;
+    private @ParseColumn(columnName = "gender") int mGender = 0;
 
     public Marker() {}
 
     public Marker(String username, String email, boolean emailVerified, int gender) {
-        this.email = email;
-        this.emailVerified = emailVerified;
-        this.gender = gender;
-        this.username = username;
+        mEmail = email;
+        mEmailVerified = emailVerified;
+        mGender = gender;
+        mUsername = username;
     }
 
     public Date getCreatedAt() {
-        return createdAt;
+        return mCreatedAt;
     }
 
     public String getEmail() {
-        return email;
+        return mEmail;
     }
 
     public void setEmail(String email) {
-        this.email = email;
+        mEmail = email;
     }
 
     public boolean isEmailVerified() {
-        return emailVerified;
+        return mEmailVerified;
     }
 
     public void setEmailVerified(boolean emailVerified) {
-        this.emailVerified = emailVerified;
+        mEmailVerified = emailVerified;
     }
 
     public String getObjectId() {
-        return objectId;
+        return mObjectId;
     }
 
     public String getUsername() {
-        return username;
+        return mUsername;
     }
 
     public void setUsername(String username) {
-        this.username = username;
+        mUsername = username;
     }
 
     public int getGender() {
-        return gender;
+        return mGender;
     }
 
     public void setGender(int gender) {
-        this.gender = gender;
+        mGender = gender;
     }
 
     public static enum Gender {
@@ -77,8 +77,8 @@ public class Marker {
         private String representation;
 
         Gender(int gender, String representation) {
-            this.gender = gender;
-            this.representation = representation;
+            gender = gender;
+            representation = representation;
         }
     }
 
@@ -89,13 +89,13 @@ public class Marker {
 
         Marker marker = (Marker) o;
 
-        if (objectId != null ? !objectId.equals(marker.objectId) : marker.objectId != null) return false;
+        if (mObjectId != null ? !mObjectId.equals(marker.mObjectId) : marker.mObjectId != null) return false;
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        return objectId != null ? objectId.hashCode() : 0;
+        return mObjectId != null ? mObjectId.hashCode() : 0;
     }
 }

@@ -1,8 +1,8 @@
-package com.imarker;
+package com.imarker.constant;
 
-public final class Constants {
+public final class ParseConstants {
 
-    private Constants() {}
+    private ParseConstants() {}
 
     // [start] Parse.com service constants
 

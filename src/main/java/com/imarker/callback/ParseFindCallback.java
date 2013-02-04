@@ -16,20 +16,20 @@ import java.util.List;
  */
 public class ParseFindCallback<T> extends FindCallback {
 
-    private final Class<T> clazz;
-    private final ParseFindCallbackListener<T> parseFindCallbackListener;
+    private final Class<T> mClazz;
+    private final ParseFindCallbackListener<T> mParseFindCallbackListener;
 
     public ParseFindCallback(Class<T> clazz) {
-        this.clazz = clazz;
-        this.parseFindCallbackListener = new SimpleParseFindCallbackListener<T>();
+        mClazz = clazz;
+        mParseFindCallbackListener = new SimpleParseFindCallbackListener<T>();
     }
 
     public ParseFindCallback(Class<T> clazz, ParseFindCallbackListener<T> parseFindCallbackListener) {
-        this.clazz = clazz;
+        mClazz = clazz;
         if (parseFindCallbackListener == null) {
-            this.parseFindCallbackListener = new SimpleParseFindCallbackListener<T>();
+            mParseFindCallbackListener = new SimpleParseFindCallbackListener<T>();
         } else {
-            this.parseFindCallbackListener = parseFindCallbackListener;
+            mParseFindCallbackListener = parseFindCallbackListener;
         }
     }
 
@@ -39,18 +39,18 @@ public class ParseFindCallback<T> extends FindCallback {
             List<T> actualObjects = new ArrayList<T>(parseObjects.size());
             try {
                 for (ParseObject parseObject : parseObjects) {
-                    actualObjects.add(ParseProcessor.getInstance().fromParseObject(clazz, parseObject));
+                    actualObjects.add(ParseProcessor.getInstance().fromParseObject(mClazz, parseObject));
                 }
-                parseFindCallbackListener.onParseFindCallbackSuccess(actualObjects);
+                mParseFindCallbackListener.onParseFindCallbackSuccess(actualObjects);
             } catch (ParseProcessException exception) {
-                String failMessage = String.format("Cannot process ParseObject: %s", clazz.getSimpleName());
+                String failMessage = String.format("Cannot process ParseObject: %s", mClazz.getSimpleName());
                 L.e(failMessage, exception);
-                parseFindCallbackListener.onParseCallbackFail(failMessage, exception);
+                mParseFindCallbackListener.onParseCallbackFail(failMessage, exception);
             }
         } else {
-            String failMessage = String.format("Cannot find ParseObjects: %s", clazz.getSimpleName());
+            String failMessage = String.format("Cannot find ParseObjects: %s", mClazz.getSimpleName());
             L.e(failMessage, e);
-            parseFindCallbackListener.onParseCallbackFail(failMessage, new IMarkerException(failMessage, e));
+            mParseFindCallbackListener.onParseCallbackFail(failMessage, new IMarkerException(failMessage, e));
         }
     }
 

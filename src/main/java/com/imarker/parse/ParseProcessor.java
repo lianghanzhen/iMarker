@@ -6,7 +6,7 @@ import java.util.List;
 
 import android.text.TextUtils;
 
-import com.imarker.Constants;
+import com.imarker.constant.ParseConstants;
 import com.imarker.exception.ParseProcessException;
 import com.parse.ParseException;
 import com.parse.ParseObject;
@@ -16,19 +16,19 @@ public final class ParseProcessor {
 
     private static final String PARSE_RESERVE_CLASS_PREFIX = "_";
 
-	private static ParseProcessor instance;
+	private static ParseProcessor mInstance;
 
     private ParseProcessor() {}
 
 	public static ParseProcessor getInstance() {
-		if (instance == null) {
+		if (mInstance == null) {
 			synchronized (ParseProcessor.class) {
-				if (instance == null) {
-					instance = new ParseProcessor();
+				if (mInstance == null) {
+					mInstance = new ParseProcessor();
                 }
 			}
 		}
-		return instance;
+		return mInstance;
 	}
 
 	/**
@@ -80,8 +80,8 @@ public final class ParseProcessor {
 
     private boolean isParseReserveColumn(Field field) {
         String columnName = getParseColumnName(field);
-        return Constants.PARSE_RESERVE_COLUMN_ACL.equals(columnName) || Constants.PARSE_RESERVE_COLUMN_OBJECT_ID.equals(columnName)
-               || Constants.PARSE_RESERVE_COLUMN_CREATED_AT.equals(columnName)  || Constants.PARSE_RESERVE_COLUMN_UPDATED_AT.equals(columnName);
+        return ParseConstants.PARSE_RESERVE_COLUMN_ACL.equals(columnName) || ParseConstants.PARSE_RESERVE_COLUMN_OBJECT_ID.equals(columnName)
+               || ParseConstants.PARSE_RESERVE_COLUMN_CREATED_AT.equals(columnName)  || ParseConstants.PARSE_RESERVE_COLUMN_UPDATED_AT.equals(columnName);
     }
 
     private boolean isRelationColumn(Field field) {
@@ -146,7 +146,7 @@ public final class ParseProcessor {
 	 */
 	private String getParseClassName(Class<?> clazz) throws ParseProcessException {
         if (isParseUserAnnotationPresent(clazz)) {
-            return Constants.PARSE_RESERVE_CLASS_USER;
+            return ParseConstants.PARSE_RESERVE_CLASS_USER;
         }
 
 	    String className = !TextUtils.isEmpty(clazz.getAnnotation(ParseClass.class).className()) ? clazz.getAnnotation(ParseClass.class).className() : clazz.getSimpleName();

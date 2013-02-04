@@ -12,8 +12,11 @@ import java.lang.reflect.Method;
 
 public class IMarkerTestRunner extends RobolectricTestRunner {
 
+    private static final String ANDROID_MANIFEST = "AndroidManifest.xml";
+    private static final String RESOURCES_DIR = "res";
+
     public IMarkerTestRunner(Class<?> testClass) throws InitializationError {
-        super(testClass, new RobolectricConfig(new File("AndroidManifest.xml"), new File("res")));
+        super(testClass, new RobolectricConfig(new File(ANDROID_MANIFEST), new File(RESOURCES_DIR)));
     }
 
     @Override

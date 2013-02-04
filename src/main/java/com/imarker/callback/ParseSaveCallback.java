@@ -10,24 +10,24 @@ import com.parse.SaveCallback;
  */
 public class ParseSaveCallback extends SaveCallback {
 
-    private final ParseSaveCallbackListener parseSaveCallbackListener;
+    private final ParseSaveCallbackListener mParseSaveCallbackListener;
 
     public ParseSaveCallback(ParseSaveCallbackListener parseSaveCallbackListener) {
         if (parseSaveCallbackListener == null) {
-            this.parseSaveCallbackListener = new SimpleParseSaveCallbackListener();
+            mParseSaveCallbackListener = new SimpleParseSaveCallbackListener();
         } else {
-            this.parseSaveCallbackListener = parseSaveCallbackListener;
+            mParseSaveCallbackListener = parseSaveCallbackListener;
         }
     }
 
     @Override
     public void done(ParseException e) {
         if (e == null) {
-            parseSaveCallbackListener.onParseSaveCallbackSuccess();
+            mParseSaveCallbackListener.onParseSaveCallbackSuccess();
         } else {
             String failMessage = "Cannot save ParseObject";
             L.e(failMessage, e);
-            parseSaveCallbackListener.onParseCallbackFail(failMessage, new IMarkerException(failMessage, e));
+            mParseSaveCallbackListener.onParseCallbackFail(failMessage, new IMarkerException(failMessage, e));
         }
     }
 

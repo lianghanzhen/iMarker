@@ -6,94 +6,95 @@ import com.imarker.parse.ParseColumn;
 @ParseClass
 public class Image {
 
-    private @ParseColumn String objectId;
-    private @ParseColumn String title;
-    private @ParseColumn String url;
-    private @ParseColumn String contentType;
-    private @ParseColumn long size;
-    private @ParseColumn int width;
-    private @ParseColumn int height;
-    private @ParseColumn String markerName;
-    private @ParseColumn(columnType = ParseColumn.ColumnType.RELATION, fetchIfNeed = true) Marker marker;
+    private @ParseColumn(columnName = "objectId") String mObjectId;
+    private @ParseColumn(columnName = "title") String mTitle;
+    private @ParseColumn(columnName = "url") String mUrl;
+    private @ParseColumn(columnName = "contentType") String mContentType;
+    private @ParseColumn(columnName = "size") long mSize;
+    private @ParseColumn(columnName = "width") int mWidth;
+    private @ParseColumn(columnName = "height") int mHeight;
+    private @ParseColumn(columnName = "markerName") String mMarkerName;
+    private @ParseColumn(columnName = "marker", columnType = ParseColumn.ColumnType.RELATION, fetchIfNeed = true) Marker mMarker;
 
     public Image() {}
 
     public Image(String title, String url, String contentType, long size, int width, int height, String markerName, Marker marker) {
-        this.title = title;
-        this.url = url;
-        this.contentType = contentType;
-        this.size = size;
-        this.width = width;
-        this.height = height;
-        this.markerName = markerName;
-        this.marker = marker;
+        mTitle = title;
+        mUrl = url;
+        mContentType = contentType;
+        mSize = size;
+        mWidth = width;
+        mHeight = height;
+        mMarkerName = markerName;
+        mMarker = marker;
     }
 
     public String getContentType() {
-        return contentType;
+        return mContentType;
     }
 
     public void setContentType(String contentType) {
-        this.contentType = contentType;
+        mContentType = contentType;
     }
 
     public int getHeight() {
-        return height;
+        return mHeight;
     }
 
     public void setHeight(int height) {
-        this.height = height;
+        mHeight = height;
     }
 
     public Marker getMarker() {
-        return marker;
+        return mMarker;
     }
 
     public void setMarker(Marker marker) {
-        this.marker = marker;
+        mMarker = marker;
     }
 
     public String getMarkerName() {
-        return markerName;
+        return mMarkerName;
     }
 
     public void setMarkerName(String markerName) {
-        this.markerName = markerName;
+        mMarkerName = markerName;
     }
 
     public String getObjectId() {
-        return objectId;
+        return mObjectId;
     }
 
     public long getSize() {
-        return size;
+        return mSize;
     }
 
     public void setSize(long size) {
-        this.size = size;
+        mSize = size;
     }
 
     public String getTitle() {
-        return title;
+        return mTitle;
     }
 
     public void setTitle(String title) {
-        this.title = title;
+        mTitle = title;
     }
 
     public String getUrl() {
-        return url;
+        return mUrl;
     }
 
     public void setUrl(String url) {
-        this.url = url;
+        mUrl = url;
     }
 
     public int getWidth() {
-        return width;
+        return mWidth;
     }
 
     public void setWidth(int width) {
-        this.width = width;
+        mWidth = width;
     }
+
 }

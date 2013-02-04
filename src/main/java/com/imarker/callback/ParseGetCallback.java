@@ -14,20 +14,20 @@ import com.parse.ParseObject;
  */
 public class ParseGetCallback<T> extends GetCallback {
 
-    private final Class<T> clazz;
-    private final ParseGetCallbackListener<T> parseGetCallbackListener;
+    private final Class<T> mClazz;
+    private final ParseGetCallbackListener<T> mPparseGetCallbackListener;
 
     public ParseGetCallback(Class<T> clazz) {
-        this.clazz = clazz;
-        parseGetCallbackListener = new SimpleParseGetCallbackListener<T>();
+        mClazz = clazz;
+        mPparseGetCallbackListener = new SimpleParseGetCallbackListener<T>();
     }
 
     public ParseGetCallback(Class<T> clazz, ParseGetCallbackListener<T> parseGetCallbackListener) {
-        this.clazz = clazz;
+        mClazz = clazz;
         if (parseGetCallbackListener == null) {
-            this.parseGetCallbackListener = new SimpleParseGetCallbackListener<T>();
+            mPparseGetCallbackListener = new SimpleParseGetCallbackListener<T>();
         } else {
-            this.parseGetCallbackListener = parseGetCallbackListener;
+            mPparseGetCallbackListener = parseGetCallbackListener;
         }
     }
 
@@ -35,16 +35,16 @@ public class ParseGetCallback<T> extends GetCallback {
     public void done(ParseObject parseObject, ParseException e) {
         if (e == null) {
             try {
-                parseGetCallbackListener.onParseGetCallbackSuccess(ParseProcessor.getInstance().fromParseObject(clazz, parseObject));
+                mPparseGetCallbackListener.onParseGetCallbackSuccess(ParseProcessor.getInstance().fromParseObject(mClazz, parseObject));
             } catch (ParseProcessException exception) {
                 String failMessage = String.format("Cannot process ParseObject: %s", parseObject.getClassName());
                 L.e(failMessage, exception);
-                parseGetCallbackListener.onParseCallbackFail(failMessage, exception);
+                mPparseGetCallbackListener.onParseCallbackFail(failMessage, exception);
             }
         } else {
             String failMessage = String.format("Cannot get ParseObject: %s", parseObject.getClassName());
             L.e(failMessage, e);
-            parseGetCallbackListener.onParseCallbackFail(failMessage, new IMarkerException(failMessage, e));
+            mPparseGetCallbackListener.onParseCallbackFail(failMessage, new IMarkerException(failMessage, e));
         }
     }
 
